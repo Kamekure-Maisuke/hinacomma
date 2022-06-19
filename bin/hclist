@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+export LC_ALL=C
+
+DATA_DIR="$(dirname $0)/../data"
+
+[ -e "$DATA_DIR/member_info_all.tsv" ] || {
+	echo "member_info_all.tsvが存在しません。"
+	exit 1
+}
+
+error_and_usage(){
+	echo "usage: ${0##*/}"
+	exit 1
+}
+[ "$#" -ge 2 ] && error_and_usage
+
+case "${1:-default}" in
+	(default)
+		cat "$DATA_DIR/member_info_all.tsv"
+	;;
+	(*)
+		error_and_usage
+	;;
+esac
