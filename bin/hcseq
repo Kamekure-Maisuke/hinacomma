@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+export LC_ALL=C
+export SKY=$'\e[36m'
+export NORMAL=$'\e[0m'
+
+error_and_usage(){
+  echo "usage: ${0##*/}"
+  exit 1
+}
+
+[ "$#" -ge 2 ] && error_and_usage
+row="$1"
+printf "$row" | grep -E '^[0-9]+$' >/dev/null || error_and_usage
+
+awk -v row=$1 'BEGIN{
+if(row<1){
+  print "1以上の数値を設定してください。"
+  exit(1)
+}
+for(i=0;i<row;i++) printf("%s◢%s\n",ENVIRON["SKY"],ENVIRON["NORMAL"])
+}
+'
