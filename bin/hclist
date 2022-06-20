@@ -17,6 +17,10 @@ error_and_usage(){
 [ "$#" -ge 2 ] && error_and_usage
 
 case "${1:-default}" in
+        (-r)
+                line=$(grep '' -c "$DATA_DIR/member_info_all.tsv")
+                awk -v rn="$((RANDOM % $line + 1))" 'NR==rn{print}' "$DATA_DIR/member_info_all.tsv"
+        ;;
 	(default)
 		cat "$DATA_DIR/member_info_all.tsv"
 	;;
