@@ -22,9 +22,9 @@ sed -e '/^$/d' -e 's/ //g' |
 fold -w4 |
 grep -Ev '^30' |
 while IFS='' read -r line;do echo -e "\u$line"; done |
-awk '
+awk -v seed="$RANDOM" '
 BEGIN{
-  srand()
+  srand(seed)
 }
 {
   a[NR]=$1
@@ -33,4 +33,5 @@ END{
   for(i=1;i<=4;i++){
     printf a[int(rand()*NR+1)]
   }
+  printf "\n"
 }'
