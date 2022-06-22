@@ -15,13 +15,13 @@ EOF
 [ "$#" -ge 1 ] && error_and_usage
 
 cut -f1 "$DATA_DIR/member_info_all.tsv" |
+tr -d '\n' |
 iconv -t UCS-2BE |
 od -tx1 -An |
 sed -e '/^$/d' -e 's/ //g' |
 fold -w4 |
 grep -Ev '^30' |
 while IFS='' read -r line;do echo -e "\u$line"; done |
-sed '/^$/d' |
 awk '
 BEGIN{
   srand()
