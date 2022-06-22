@@ -14,6 +14,15 @@ EOF
 # 引数が1以上ならエラー
 [ "$#" -ge 1 ] && error_and_usage
 
+# メンバーの最後の1文字抜き出し
+final_name=$(
+  cut -f1 "$DATA_DIR/member_info_all.tsv" | sed 's/^.*\(.$\)/\1/g' | tr -d '\n' | iconv -t UCS-2BE | od -tx1 -An | sed -e '/^$/d' -e 's/ //g' |
+  fold -w4 | grep -Ev '^30' | while IFS='' read -r line;do printf "\u$line\n"; done
+)
+row=$(echo "$final_name" | grep '' -c)
+final_row_random=$((RANDOM % row + 1))
+
+# 最初の3文字出力
 cut -f1 "$DATA_DIR/member_info_all.tsv" |
 tr -d '\n' |
 iconv -t UCS-2BE |
@@ -21,7 +30,7 @@ od -tx1 -An |
 sed -e '/^$/d' -e 's/ //g' |
 fold -w4 |
 grep -Ev '^30' |
-while IFS='' read -r line;do echo -e "\u$line"; done |
+while IFS='' read -r line;do printf "\u$line\n"; done |
 awk -v seed="$RANDOM" '
 BEGIN{
   srand(seed)
@@ -30,8 +39,11 @@ BEGIN{
   a[NR]=$1
 }
 END{
-  for(i=1;i<=4;i++){
+  for(i=1;i<=3;i++){
     printf a[int(rand()*NR+1)]
   }
-  printf "\n"
 }'
+
+# 最後の文字出力
+# 名前感を持たせるため
+echo "$final_name" | awk -v row="$final_row_random" 'NR==row{print}'
