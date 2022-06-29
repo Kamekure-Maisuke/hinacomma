@@ -7,23 +7,39 @@ DATA_DIR="$(dirname $0)/../data"
 error_and_usage(){
   cat <<EOF
 Usage: ${0##*/}
+Option: -v
+        詳細情報出力
 EOF
   exit 1
 }
 
 # 引数が1以上ならエラー
-[ "$#" -ge 1 ] && error_and_usage
+[ "$#" -ge 2 ] && error_and_usage
+
+# 第一引数チェック
+case "${1:-default}" in
+  (default)
+    :
+    ;;
+  (-v)
+    info=1
+    ;;
+  (*)
+    error_and_usage
+    ;;
+esac
 
 # メンバーの最後の1文字抜き出し
 final_name=$(
   cut -f1 "$DATA_DIR/member_info_all.tsv" | sed 's/^.*\(.$\)/\1/g' | tr -d '\n' | iconv -t UCS-2BE | od -tx1 -An | sed -e '/^$/d' -e 's/ //g' |
   fold -w4 | grep -Ev '^30' | while IFS='' read -r line;do printf "\u$line\n"; done
 )
+
 row=$(echo "$final_name" | grep '' -c)
 final_row_random=$((RANDOM % row + 1))
 
-# 最初の3文字出力
-cut -f1 "$DATA_DIR/member_info_all.tsv" |
+# 最初の3文字
+firstname=$(cut -f1 "$DATA_DIR/member_info_all.tsv" |
 tr -d '\n' |
 iconv -t UCS-2BE |
 od -tx1 -An |
@@ -42,8 +58,27 @@ END{
   for(i=1;i<=3;i++){
     printf a[int(rand()*NR+1)]
   }
-}'
+}')
 
-# 最後の文字出力
+# 最後の文字
 # 名前感を持たせるため
-echo "$final_name" | awk -v row="$final_row_random" 'NR==row{print}'
+lastname=$(echo "$final_name" | awk -v row="$final_row_random" 'NR==row{print}')
+
+# 名前出力
+echo "$firstname$lastname"
+
+[ "$info" -eq 1 ] && {
+  echo "$firstname$lastname" |
+  fold -w1 |
+  sed '/^$/d' |
+  xargs -I@ grep -m1 @ "$DATA_DIR/member_info_all.tsv" |
+  awk '
+  BEGIN{
+    print
+    print "[詳細情報]"
+  }
+  {
+    print NR"文字目",$1
+  }
+  '
+}
