@@ -67,6 +67,7 @@ lastname=$(echo "$final_name" | awk -v row="$final_row_random" 'NR==row{print}')
 # 名前出力
 echo "$firstname$lastname"
 
+# vオプションがついている時、抽出されたメンバー名を出力
 [ "$info" -eq 1 ] && {
   echo "$firstname$lastname" |
   fold -w1 |
