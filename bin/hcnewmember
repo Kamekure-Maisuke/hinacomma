@@ -72,7 +72,7 @@ echo "$firstname$lastname"
   echo "$firstname$lastname" |
   fold -w1 |
   sed '/^$/d' |
-  xargs -I@ grep -m1 @ "$DATA_DIR/member_info_all.tsv" |
+  xargs -I@ grep -m1 --color=always @ "$DATA_DIR/member_info_all.tsv" |
   awk '
   BEGIN{
     print
