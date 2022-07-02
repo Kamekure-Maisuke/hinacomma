@@ -14,7 +14,9 @@ EOF
 }
 
 # 引数が1以上ならエラー
-[ "$#" -ge 2 ] && error_and_usage
+case "$#" in
+  ([2-9]) error_and_usage ;;
+esac
 
 # 第一引数チェック
 case "${1:-default}" in
@@ -68,18 +70,20 @@ lastname=$(echo "$final_name" | awk -v row="$final_row_random" 'NR==row{print}')
 echo "$firstname$lastname"
 
 # vオプションがついている時、抽出されたメンバー名を出力
-[ "$info" -eq 1 ] && {
-  echo "$firstname$lastname" |
-  fold -w1 |
-  sed '/^$/d' |
-  xargs -I@ grep -m1 --color=always @ "$DATA_DIR/member_info_all.tsv" |
-  awk '
-  BEGIN{
-    print
-    print "[詳細情報]"
-  }
-  {
-    print NR"文字目",$1
-  }
-  '
-}
+case "$info" in
+  (1)
+    echo "$firstname$lastname" |
+    fold -w1 |
+    sed '/^$/d' |
+    xargs -I@ grep -m1 --color=always @ "$DATA_DIR/member_info_all.tsv" |
+    awk '
+    BEGIN{
+      print
+      print "[詳細情報]"
+    }
+    {
+      print NR"文字目",$1
+    }
+    '
+    ;;
+esac
